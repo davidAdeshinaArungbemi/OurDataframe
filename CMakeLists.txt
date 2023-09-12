@@ -3,7 +3,7 @@ project(OurDataframe)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include(CTest)
-enable_testing()
+# include(CTest)
+# enable_testing()
 
 add_library(our-dataframe our-dataframe.cpp)
