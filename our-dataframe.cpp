@@ -627,9 +627,4 @@ int main()
     // i.e csv feature names are: "INST CODE","INSTITUTE NAME", etc
     auto c1 = b1.SelectColumns((Dataframe::VecString){"\"INST CODE\"", "\"INSTITUTE NAME\""});
     auto c2 = b1.SelectColumns({0, 1});
-
-    std::cout << "Using feature names: " << c1 << std::endl;
-    std::cout << "Using feature indexes: " << c2 << std::endl;
-
-    std::cout << "Row select: " << b1.SelectRows({0, 1}) << std::endl;
 }
