@@ -617,12 +617,19 @@ Dataframe::Table Dataframe::ColumnConcat(Table t1, Table t2)
     return concat_table;
 }
 
+#include "our-dataframe.hpp"
 int main()
 {
     Dataframe::Table *a = new Dataframe::Table("DataSource/TSEAMCET_2022_finalphase.csv");
     auto b1 = a->Cut(0, 5, 0, 3);
-    // a->Info();
-    // std::cout << b1;
-    b1.Info();
-    // std::cout << b1;
+
+    // needed those inner quotation marks because they were part of the feature name
+    // i.e csv feature names are: "INST CODE","INSTITUTE NAME", etc
+    auto c1 = b1.SelectColumns((Dataframe::VecString){"\"INST CODE\"", "\"INSTITUTE NAME\""});
+    auto c2 = b1.SelectColumns({0, 1});
+
+    std::cout << "Using feature names: " << c1 << std::endl;
+    std::cout << "Using feature indexes: " << c2 << std::endl;
+
+    std::cout << "Row select: " << b1.SelectRows({0, 1}) << std::endl;
 }

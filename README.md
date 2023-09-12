@@ -1,11 +1,25 @@
 # OurDataframe
-My attempt at creating a pandas like library in c++. 
+A dataframe library written entirely in C++, inspired by Python's pandas library.<br>
+This project is built to support the MLA library enabling users to carry out:<br>
+- Data cleaning and preparation
+- Data tranformation(cutting either by rows or columns or both, removing and adding values)
+- Reading and writing data from csv files
+- Exploratory analysis(collecting info on nulls/non-nulls in dataset, summary statistics, etc)
+- Arithmetic operations with data(Int or Float)
 
-Felt inspired to create my own ml framework(which i'm still working on)
-So i decided to create a dataframe library for handling data.
 
-It's not complete and a few bugs here and there
+Functions are self-explanatory by their names. Check the our-dataframe.hpp file for functions available
 
-Hope to finish it up soon
+## Examples:
+### Reading and Cutting data
+![Alt text](image.png)
 
-Also the datasource were from kaggle to test out the library
+#### Result:
+![Alt text](image-1.png)
+
+### Select data by columns/rows
+You can select columns via their column names or column index:
+![Alt text](image-2.png)
+
+#### Result:
+![Alt text](image-3.png)

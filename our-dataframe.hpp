@@ -51,7 +51,7 @@ namespace Dataframe
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
         void Info();
-        void Statistics();
+        // void Statistics();
         size_t RowSize();
         size_t ColumnSize();
         std::string GetAt(size_t i, size_t j);
