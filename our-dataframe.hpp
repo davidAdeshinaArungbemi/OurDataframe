@@ -38,8 +38,8 @@ namespace Dataframe
         Table SelectColumns(Vec_UInt col_index_select_vec);
         Table SelectColumns(VecString features_to_select);
         Table SelectRows(Vec_UInt row_index_select_vec);
-        // Table IsNAN(Vec_UInt columns);
-        // Table IsNAN(VecString columns);
+        Table IsNAN(Vec_UInt columns);
+        Table IsNAN(VecString columns);
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
@@ -51,7 +51,7 @@ namespace Dataframe
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
         void Info();
-        // void Statistics();
+        void Statistics();
         size_t RowSize();
         size_t ColumnSize();
         std::string GetAt(size_t i, size_t j);
