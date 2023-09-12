@@ -523,10 +523,13 @@ void Dataframe::Table::Info()
 
         else
         {
-            non_null_count++;
+            for (size_t i = 1; i < num_rows + 1; i++)
+            {
+                non_null_count++;
+            }
         }
 
-        printf("[%zu] %s: non-null count: %zu, null count: %zu, Type: %s\n\n",
+        printf("\n[%zu] %s: non-null count: %zu, null count: %zu, Type: %s\n\n",
                j, list_of_features[j].c_str(), non_null_count, null_count, feature_type_info[j].c_str());
     }
 }
@@ -618,6 +621,8 @@ int main()
 {
     Dataframe::Table *a = new Dataframe::Table("DataSource/TSEAMCET_2022_finalphase.csv");
     auto b1 = a->Cut(0, 5, 0, 3);
-    a->Info();
+    // a->Info();
+    // std::cout << b1;
+    b1.Info();
     // std::cout << b1;
 }

@@ -38,11 +38,11 @@ namespace Dataframe
         Table SelectColumns(Vec_UInt col_index_select_vec);
         Table SelectColumns(VecString features_to_select);
         Table SelectRows(Vec_UInt row_index_select_vec);
-        Table IsNAN(Vec_UInt columns);
-        Table IsNAN(VecString columns);
-        Table Is_Non_NAN(Vec_UInt columns);
-        Table Is_Non_NAN(VecString columns);
-        Table GroupBy(size_t column, std::string value);
+        // Table IsNAN(Vec_UInt columns);
+        // Table IsNAN(VecString columns);
+        // Table Is_Non_NAN(Vec_UInt columns);
+        // Table Is_Non_NAN(VecString columns);
+        // Table GroupBy(size_t column, std::string value);
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);
         void RenameColumn(size_t col_index, std::string name);
@@ -57,14 +57,14 @@ namespace Dataframe
         std::string GetAt(size_t i, size_t j);
         VecString FeatureNameVector();
         VecString GetVectorData();
-        Eigen::MatrixXf ToMatrix(const Table &df);
+        // Eigen::MatrixXf ToMatrix(const Table &df);
         // friend std::ostream &operator<<(std::ostream &os, const Table &tables);
         friend std::ostream &operator<<(std::ostream &os, const Table &tables);
     } Table;
 
     Table RowConcat(Table t1, Table t2);
     Table ColumnConcat(Table t1, Table t2);
-    
+
     Table Difference(Table t1, Table t2);
     Table Add(Table t1, Table t2);
     Table ElemMult(Table t1, Table t2);
