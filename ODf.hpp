@@ -11,6 +11,7 @@ namespace ODf
 {
     typedef std::vector<std::string> VecString;
     typedef std::vector<std::size_t> Vec_UInt;
+    typedef std::vector<double> VecDouble;
     typedef struct Table
     {
     public:
@@ -40,10 +41,14 @@ namespace ODf
         Table SelectRows(Vec_UInt row_index_select_vec);
         Table IsNAN(Vec_UInt columns);
         Table IsNAN(VecString columns);
-        Table Statistics();
+        Table Statistics(bool = true);
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
+        double mean(VecString val_vec);
+        double standard_dev(VecString val_vec);
+        VecDouble max_and_min(VecString val_vec);
+
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);
         void RenameColumn(size_t col_index, std::string name);

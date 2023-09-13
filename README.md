@@ -1,4 +1,4 @@
-# OurDataframe
+# ODf - OurDataframe
 A dataframe library written entirely in C++, inspired by Python's pandas library.<br>
 This project was built to support the MLA library enabling users to carry out:<br>
 - Data cleaning and preparation
@@ -11,6 +11,8 @@ This project was built to support the MLA library enabling users to carry out:<b
 Functions are self-explanatory by their names. Check the our-dataframe.hpp file for functions available
 
 ## Examples
+<strong>Note the name of header file has been updated from "our-dataframe.hpp" to "ODf.hpp". <strong>
+ <br>
 ### Reading and Cutting data
 ![Alt text](image.png)
 
