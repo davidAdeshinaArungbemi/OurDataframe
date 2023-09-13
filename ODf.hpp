@@ -7,7 +7,7 @@
 #include <cassert>
 #include <unordered_map>
 
-namespace Dataframe
+namespace ODf
 {
     typedef std::vector<std::string> VecString;
     typedef std::vector<std::size_t> Vec_UInt;
@@ -40,6 +40,7 @@ namespace Dataframe
         Table SelectRows(Vec_UInt row_index_select_vec);
         Table IsNAN(Vec_UInt columns);
         Table IsNAN(VecString columns);
+        Table Statistics();
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
@@ -51,7 +52,6 @@ namespace Dataframe
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
         void Info();
-        void Statistics();
         size_t RowSize();
         size_t ColumnSize();
         std::string GetAt(size_t i, size_t j);
@@ -74,8 +74,8 @@ namespace Dataframe
     Table ScalarDiv(Table t, float val);
 }
 
-std::ostream &operator<<(std::ostream &os, const Dataframe::Vec_UInt &vec_size_t);
-std::ostream &operator<<(std::ostream &os, const Dataframe::VecString &vec_string);
+std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);
+std::ostream &operator<<(std::ostream &os, const ODf::VecString &vec_string);
 
 // Table DropRow(Vec_UInt row_drop_vec);
 // Table DropRow(std::vector<std::string> rows_to_drop);
