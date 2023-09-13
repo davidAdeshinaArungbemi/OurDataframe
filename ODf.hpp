@@ -45,9 +45,10 @@ namespace ODf
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
-        double mean(VecString val_vec);
-        double standard_dev(VecString val_vec);
-        VecDouble max_and_min(VecString val_vec);
+        double Mean(VecString val_vec);
+        double StandardDev(VecString val_vec);
+        double Max(VecString val_vec);
+        double Min(VecString val_vec);
 
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);

@@ -14,6 +14,13 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
 <strong>Note the name of header file has been updated from "our-dataframe.hpp" to "ODf.hpp". <strong>
  <br>
 ### Reading and Cutting data
+    #include "our-dataframe. hpp"
+    int main()
+    {
+        Dataframe: :Table *a = new Dataframe: :Table ("DataSource/TSEAMCET_2022_finalphase.csv");
+        auto b1 = a->Cut (0, 5, 0, 3);
+        std::cout << b1;
+    }
 ![Alt text](image.png)
 
 #### Result:
