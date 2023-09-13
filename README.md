@@ -14,10 +14,10 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
 <strong>Note the name of header file has been updated from "our-dataframe.hpp" to "ODf.hpp". <strong>
  <br>
 ### Reading and Cutting data
-    #include "our-dataframe. hpp"
+    #include "ODf"
     int main()
     {
-        Dataframe: :Table *a = new Dataframe: :Table ("DataSource/TSEAMCET_2022_finalphase.csv");
+        Dataframe::Table *a = new Dataframe::Table ("DataSource/TSEAMCET_2022_finalphase.csv");
         auto b1 = a->Cut (0, 5, 0, 3);
         std::cout << b1;
     }
@@ -28,7 +28,7 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
 ### Select data by columns/rows
 You can select columns via their column names or column index:
 
-    #include "our-dataframe. hpp" 
+    #include "ODf.hpp" 
     int main(){
         ODf::Table *a = new ODf::Table("DataSource/TSEAMCET_2022_finalphase.csv");
         auto b1 = a->Cut(0, 5, 0, 3);
