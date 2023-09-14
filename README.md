@@ -17,7 +17,7 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
     #include "ODf.hpp"
     int main()
     {
-        Dataframe::Table *a = new Dataframe::Table ("DataSource/TSEAMCET_2022_finalphase.csv");
+        Dataframe::Table *a = new Dataframe::Table("DataSource/TSEAMCET_2022_finalphase.csv");
         auto b1 = a->Cut (0, 5, 0, 3);
         std::cout << b1;
     }

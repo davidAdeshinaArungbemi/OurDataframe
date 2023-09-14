@@ -102,14 +102,12 @@ void ODf::Table::AssignTypeInfo()
 
     for (size_t j = 0; j < num_cols; j++)
     {
-
         std::string dtype = "STR";
-
         size_t float_count = 0;
         size_t int_count = 0;
         size_t string_count = 0;
 
-        for (size_t i = 0; i < max_row; i++)
+        for (size_t i = 1; i < max_row + 1; i++)
         {
             size_t random_row = dist(gen);
             try
@@ -118,7 +116,6 @@ void ODf::Table::AssignTypeInfo()
                 int check = std::stoi(string_val);
 
                 int_count++;
-
                 if (string_val.find('.') != std::string::npos)
                 {
                     float_count++;
@@ -130,9 +127,6 @@ void ODf::Table::AssignTypeInfo()
                 // std::cerr << e.what() << '\n';
             }
         }
-        // std::cout << string_count << std::endl;
-        // std::cout << int_count << std::endl;
-        // std::cout << float_count << std::endl;
         if (string_count < int_count)
         {
             dtype = (float_count > 0) ? "FLOAT" : "INT";
@@ -190,7 +184,7 @@ std::ostream &ODf::operator<<(std::ostream &os, const ODf::Table &Table)
         os << "\n";
     }
     os << "Sample count: " << Table.num_rows << "\n";
-    os << "Feature count: " << Table.num_cols << "\n";
+    os << "Feature count: " << Table.num_cols << "\n\n";
     return os;
 }
 
@@ -534,25 +528,125 @@ void ODf::Table::Info()
     }
 }
 
+double ODf::Table::Mean()
+{
+    assert(num_cols == 1); // ensure its 1 dimensional
+    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    double sum = 0;
+    for (size_t i = 1; i < num_rows + 1; i++)
+    {
+        sum += std::stod(data[i]);
+    }
+    return sum / num_rows;
+}
+
+double ODf::Table::StandardDev()
+{
+    assert(num_cols == 1); // ensure its 1 dimensional
+    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    double sum_sqrt_difference = 0;
+    double mean = Mean();
+
+    for (size_t n = num_cols; n < data.size(); n++)
+    {
+        std::cout << "Numbers: " << data[n] << std::endl;
+        sum_sqrt_difference += pow(std::stof(this->data[n]) - mean, 2);
+    }
+
+    std::cout << "Std: "
+              << sqrt(sum_sqrt_difference / data.size() - num_cols)
+              << std::endl;
+
+    return sqrt(sum_sqrt_difference / data.size() - num_cols);
+}
+
 ODf::Table ODf::Table::Statistics(bool show_result)
 {
-    ODf::VecString feature_name_vec = {"Statistics"}; // create vector to hold statistic and adding "Statistics" header
-    feature_name_vec.insert(std::end(feature_name_vec), std::begin(FeatureNameVector()), std::end(FeatureNameVector()));
-    ODf::VecString stat_types = {"mean",
+    ODf::VecString stat_vec = {"Statistics"}; // create vector to hold statistic and adding "Statistics" header
+    auto feature_list = FeatureNameVector();
+    stat_vec.insert(std::end(stat_vec), std::begin(feature_list),
+                    std::end(feature_list));
+
+    ODf::VecString stat_types = {"count",
+                                 "mean",
                                  "std",
                                  "min",
                                  "25%",
                                  "50%",
                                  "75%",
                                  "max"};
+
+    size_t col_size = this->num_cols + 1;
+
     for (size_t i = 0; i < stat_types.size(); i++)
     {
-        for (size_t j = 0; j < feature_name_vec.size(); j++)
+        stat_vec.push_back(stat_types[i]);
+        for (size_t j = 0; j < col_size - 1; j++)
         {
+            std::string type_info = SelectColumns({j}).feature_type_info[0];
+            switch (i)
+            {
+            case 0:
+            { // count
+                size_t non_null_count = 0;
+                if (type_info != "STR")
+                {
+                    for (size_t a = 1; a < num_rows + 1; a++)
+                    {
+                        try
+                        {
+                            std::ignore = std::stoi(data[a * num_cols]);
+                            non_null_count++;
+                        }
+                        catch (const std::exception e)
+                        { // no actions taken
+                        }
+                    }
+                }
+                else
+                {
+                    non_null_count = num_rows;
+                }
+                stat_vec.push_back(std::to_string(non_null_count));
+                break;
+            }
+            case 1:
+            { // mean
+                // std::cout << SelectColumns({j}).num_cols << std::endl;
+
+                stat_vec.push_back(std::to_string(SelectColumns({j}).Mean()));
+                break;
+            }
+            case 2:
+            { // standard deviation
+                stat_vec.push_back(std::to_string(SelectColumns({j}).StandardDev()));
+                // std::cout << "Std: " << SelectColumns({j}).StandardDev() << std::endl;
+                break;
+            }
+            case 3:
+            { // min
+                break;
+            }
+            case 4:
+            { // first quartile
+                break;
+            }
+            case 5:
+            { // second quartile
+                break;
+            }
+            case 6:
+            { // third quartile
+                break;
+            }
+            case 7:
+            { // max
+                break;
+            }
+            }
         }
     }
-
-    return Table("jjj");
+    // return Table("jjj");
 }
 
 size_t ODf::Table::RowSize()
@@ -641,11 +735,10 @@ ODf::Table ODf::ColumnConcat(Table t1, Table t2)
 #include "ODf.hpp"
 int main()
 {
-    ODf::Table *a = new ODf::Table("DataSource/TSEAMCET_2022_finalphase.csv");
-    auto b1 = a->Cut(0, 5, 0, 3);
+    ODf::Table *a = new ODf::Table("DataSource/fakeData.csv");
+    auto b1 = a->Cut(0, 2, 0, 2);
+    std::cout << b1;
 
-    // needed those inner quotation marks because they were part of the feature name
-    // i.e csv feature names are: "INST CODE","INSTITUTE NAME", etc
-    auto c1 = b1.SelectColumns((ODf::VecString){"\"INST CODE\"", "\"INSTITUTE NAME\""});
-    auto c2 = b1.SelectColumns({0, 1});
+    b1.Statistics();
+    // c1.Statistics();
 }
