@@ -14,6 +14,7 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
 
 ## Examples
 ### Reading and Cutting data
+```cpp
     #include "ODf.hpp"
     int main()
     {
@@ -21,13 +22,13 @@ Functions are self-explanatory by their names. Check the our-dataframe.hpp file 
         auto b1 = a->Cut (0, 5, 0, 3);
         std::cout << b1;
     }
-
+```
 #### Result:
 ![Alt text](image-1.png)
 
 ### Select data by columns/rows
 You can select columns via their column names or column index:
-
+```cpp
     #include "ODf.hpp" 
     int main(){
         ODf::Table *a = new ODf::Table("DataSource/TSEAMCET_2022_finalphase.csv");
@@ -43,6 +44,6 @@ You can select columns via their column names or column index:
         std::cout << "Using feature indexes: " << c2 << std: :endl;
         std::cout << "Row select: " << b1.SelectRows({0, 1}) << std::endl;
     }
-
+```
 #### Result:
 ![Alt text](image-3.png)

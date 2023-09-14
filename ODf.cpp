@@ -40,6 +40,8 @@ ODf::Table::Table(ODf::VecString data, size_t num_rows, size_t num_cols)
     this->data = data;
     this->num_rows = num_rows;
     this->num_cols = num_cols;
+
+    CallAllUpdaters();
 }
 
 ODf::Vec_UInt ODf::Table::GetMaxLength() const
@@ -579,6 +581,13 @@ double ODf::Table::Min()
     return min;
 }
 
+ODf::Table ODf::Table::QuickSort()
+{
+    assert(num_cols == 1); // ensure its 1 dimensional
+    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    VecString sorted_vec(data.begin() + num_cols, data.end());
+}
+
 ODf::Table ODf::Table::Statistics(bool show_result)
 {
     ODf::VecString stat_vec = {"Statistics"}; // create vector to hold statistic and adding "Statistics" header
@@ -645,16 +654,20 @@ ODf::Table ODf::Table::Statistics(bool show_result)
                 std::cout << "Min: " << SelectColumns({j}).Min() << std::endl;
                 break;
             }
+
             case 4:
             { // first quartile
+                SelectColumns({j}).MergeSort();
                 break;
             }
             case 5:
             { // second quartile
+
                 break;
             }
             case 6:
             { // third quartile
+
                 break;
             }
             case 7:

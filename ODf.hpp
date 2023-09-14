@@ -6,7 +6,7 @@
 #include <string>
 #include <cassert>
 #include <unordered_map>
-
+#include <algorithm>
 namespace ODf
 {
     typedef std::vector<std::string> VecString;
@@ -42,6 +42,7 @@ namespace ODf
         Table IsNAN(Vec_UInt columns);
         Table IsNAN(VecString columns);
         Table Statistics(bool = true);
+        Table QuickSort();
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
