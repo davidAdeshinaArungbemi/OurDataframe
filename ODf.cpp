@@ -549,15 +549,34 @@ double ODf::Table::StandardDev()
 
     for (size_t n = num_cols; n < data.size(); n++)
     {
-        std::cout << "Numbers: " << data[n] << std::endl;
         sum_sqrt_difference += pow(std::stof(this->data[n]) - mean, 2);
     }
+    return sqrt(sum_sqrt_difference / (data.size() - num_cols));
+}
 
-    std::cout << "Std: "
-              << sqrt(sum_sqrt_difference / data.size() - num_cols)
-              << std::endl;
+double ODf::Table::Max()
+{
+    assert(num_cols == 1); // ensure its 1 dimensional
+    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    double max = std::stod(data[num_cols]);
+    for (size_t n = num_cols; n < data.size(); n++)
+    {
+        max = (max > std::stod(data[n])) ? max : std::stod(data[n]);
+    }
 
-    return sqrt(sum_sqrt_difference / data.size() - num_cols);
+    return max;
+}
+double ODf::Table::Min()
+{
+    assert(num_cols == 1); // ensure its 1 dimensional
+    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    double min = std::stod(data[num_cols]);
+    for (size_t n = num_cols; n < data.size(); n++)
+    {
+        min = (min < std::stod(data[n])) ? min : std::stod(data[n]);
+    }
+
+    return min;
 }
 
 ODf::Table ODf::Table::Statistics(bool show_result)
@@ -612,19 +631,18 @@ ODf::Table ODf::Table::Statistics(bool show_result)
             }
             case 1:
             { // mean
-                // std::cout << SelectColumns({j}).num_cols << std::endl;
-
                 stat_vec.push_back(std::to_string(SelectColumns({j}).Mean()));
                 break;
             }
             case 2:
             { // standard deviation
                 stat_vec.push_back(std::to_string(SelectColumns({j}).StandardDev()));
-                // std::cout << "Std: " << SelectColumns({j}).StandardDev() << std::endl;
                 break;
             }
             case 3:
             { // min
+                stat_vec.push_back(std::to_string(SelectColumns({j}).Min()));
+                std::cout << "Min: " << SelectColumns({j}).Min() << std::endl;
                 break;
             }
             case 4:
@@ -641,6 +659,8 @@ ODf::Table ODf::Table::Statistics(bool show_result)
             }
             case 7:
             { // max
+                stat_vec.push_back(std::to_string(SelectColumns({j}).Max()));
+                std::cout << "Max: " << SelectColumns({j}).Max() << std::endl;
                 break;
             }
             }
