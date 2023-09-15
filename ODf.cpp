@@ -104,7 +104,7 @@ void ODf::Table::AssignTypeInfo()
 
     for (size_t j = 0; j < num_cols; j++)
     {
-        std::string dtype = "STR";
+        DType dtype = DType::STR;
         size_t float_count = 0;
         size_t int_count = 0;
         size_t string_count = 0;
@@ -131,7 +131,7 @@ void ODf::Table::AssignTypeInfo()
         }
         if (string_count < int_count)
         {
-            dtype = (float_count > 0) ? "FLOAT" : "INT";
+            dtype = (float_count > 0) ? DType::FLOAT : DType::INT;
         }
 
         feature_type_info.push_back(dtype);
@@ -151,6 +151,31 @@ void ODf::Table::CallAllUpdaters()
 {
     AssignTypeInfo();
     UpdateFeatureVector();
+}
+
+size_t ODf::Table::MapFeatureNameToIndex(std::string feature_name)
+{
+    auto it = std::find(list_of_features.begin(), list_of_features.end(), feature_name);
+
+    assert(it != list_of_features.end() && "Feature name does not exist");
+
+    return std::distance(list_of_features.begin(), it);
+}
+
+ODf::DType ODf::Table::GetType(std::string feature_name)
+{
+    // auto it = std::find(list_of_features.begin(), list_of_features.end(), feature_name);
+
+    // assert(it != list_of_features.end() && "Feature name does not exist");
+
+    size_t feature_index = MapFeatureNameToIndex(feature_name);
+
+    return GetType(feature_index);
+}
+ODf::DType ODf::Table::GetType(size_t index_loc)
+{
+    assert(index_loc >= 0 && index_loc < feature_type_info.size());
+    return feature_type_info[index_loc];
 }
 
 std::ostream &ODf::operator<<(std::ostream &os, const ODf::Table &Table)
@@ -453,10 +478,58 @@ void ODf::Table::Shuffle(size_t random_state)
 
 void ODf::Table::ReplaceAt(size_t i, size_t j, std::string string_val)
 {
-    this->data[(i + 1) * this->num_cols + j] = string_val;
+    this->data[(i + 1) * this->num_rows + j] = string_val;
 }
 
-void ODf::Table::Info()
+void ODf::Table::ShiftTo(size_t column_index, size_t row_index_1, size_t row_index_2)
+{
+    VecString shifted_data;
+    shifted_data.push_back(data[column_index]); // adds the feature name
+
+    auto val_at_row_index_1 = GetAt(row_index_1, column_index);
+
+    for (size_t i = 0; i < num_rows; i++)
+    {
+        if (i == row_index_1)
+        {
+            continue;
+        }
+        shifted_data.push_back(data[(i + 1) * this->num_rows + column_index]);
+        if (i == row_index_2)
+        {
+            shifted_data.push_back(data[(row_index_1 + 1) * this->num_rows + column_index]);
+        }
+    }
+
+    this->data = shifted_data;
+}
+
+void ODf::Table::ShiftTo(std::string feature_name,
+                         size_t row_index_1, size_t row_index_2)
+{
+    VecString shifted_data;
+    shifted_data.push_back(feature_name);
+    size_t column_index = MapFeatureNameToIndex(feature_name);
+
+    auto val_at_row_index_1 = GetAt(row_index_1, column_index);
+
+    for (size_t i = 0; i < num_rows; i++)
+    {
+        if (i == row_index_1)
+        {
+            continue;
+        }
+        shifted_data.push_back(data[(i + 1) * this->num_rows + column_index]);
+        if (i == row_index_2)
+        {
+            shifted_data.push_back(data[(row_index_1 + 1) * this->num_rows + column_index]);
+        }
+    }
+
+    this->data = shifted_data;
+}
+
+const void ODf::Table::Info()
 {
     size_t byte_size = (sizeof(size_t) * this->data.size());
     std::string unit = "bytes";
@@ -485,7 +558,7 @@ void ODf::Table::Info()
         // printf("[%zu] %s: ", j, list_of_features[j].c_str());
         size_t non_null_count = 0;
         size_t null_count = 0;
-        if (feature_type_info[j] == "INT")
+        if (feature_type_info[j] == DType::INT)
         {
             for (size_t i = 1; i < num_rows + 1; i++)
             {
@@ -501,7 +574,7 @@ void ODf::Table::Info()
             }
         }
 
-        else if (feature_type_info[j] == "FLOAT")
+        else if (feature_type_info[j] == DType::FLOAT)
         {
             for (size_t i = 1; i < num_rows + 1; i++)
             {
@@ -525,15 +598,25 @@ void ODf::Table::Info()
             }
         }
 
+        auto string_type = [](DType dtype) -> std::string
+        {
+            if (dtype == DType::FLOAT)
+                return "FLOAT";
+            if (dtype == DType::INT)
+                return "INT";
+
+            return "STR";
+        };
+
         printf("\n[%zu] %s: non-null count: %zu, null count: %zu, Type: %s\n\n",
-               j, list_of_features[j].c_str(), non_null_count, null_count, feature_type_info[j].c_str());
+               j, list_of_features[j].c_str(), non_null_count, null_count, string_type(feature_type_info[j]).c_str());
     }
 }
 
-double ODf::Table::Mean()
+const double ODf::Table::Mean()
 {
     assert(num_cols == 1); // ensure its 1 dimensional
-    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    assert(feature_type_info[0] != DType::STR && "Values cannot be non-numbers");
     double sum = 0;
     for (size_t i = 1; i < num_rows + 1; i++)
     {
@@ -542,10 +625,10 @@ double ODf::Table::Mean()
     return sum / num_rows;
 }
 
-double ODf::Table::StandardDev()
+const double ODf::Table::StandardDev()
 {
     assert(num_cols == 1); // ensure its 1 dimensional
-    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    assert(feature_type_info[0] != DType::STR && "Values cannot be non-numbers");
     double sum_sqrt_difference = 0;
     double mean = Mean();
 
@@ -556,10 +639,10 @@ double ODf::Table::StandardDev()
     return sqrt(sum_sqrt_difference / (data.size() - num_cols));
 }
 
-double ODf::Table::Max()
+const double ODf::Table::Max()
 {
     assert(num_cols == 1); // ensure its 1 dimensional
-    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    assert(feature_type_info[0] != DType::STR && "Values cannot be non-numbers");
     double max = std::stod(data[num_cols]);
     for (size_t n = num_cols; n < data.size(); n++)
     {
@@ -568,10 +651,10 @@ double ODf::Table::Max()
 
     return max;
 }
-double ODf::Table::Min()
+const double ODf::Table::Min()
 {
     assert(num_cols == 1); // ensure its 1 dimensional
-    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
+    assert(feature_type_info[0] != DType::STR && "Values cannot be non-numbers");
     double min = std::stod(data[num_cols]);
     for (size_t n = num_cols; n < data.size(); n++)
     {
@@ -579,13 +662,6 @@ double ODf::Table::Min()
     }
 
     return min;
-}
-
-ODf::Table ODf::Table::QuickSort()
-{
-    assert(num_cols == 1); // ensure its 1 dimensional
-    assert(feature_type_info[0] != "STR" && "Values cannot be non-numbers");
-    VecString sorted_vec(data.begin() + num_cols, data.end());
 }
 
 ODf::Table ODf::Table::Statistics(bool show_result)
@@ -611,13 +687,13 @@ ODf::Table ODf::Table::Statistics(bool show_result)
         stat_vec.push_back(stat_types[i]);
         for (size_t j = 0; j < col_size - 1; j++)
         {
-            std::string type_info = SelectColumns({j}).feature_type_info[0];
+            DType type_info = SelectColumns({j}).feature_type_info[0];
             switch (i)
             {
             case 0:
             { // count
                 size_t non_null_count = 0;
-                if (type_info != "STR")
+                if (type_info != DType::STR)
                 {
                     for (size_t a = 1; a < num_rows + 1; a++)
                     {
@@ -657,7 +733,7 @@ ODf::Table ODf::Table::Statistics(bool show_result)
 
             case 4:
             { // first quartile
-                SelectColumns({j}).MergeSort();
+
                 break;
             }
             case 5:
@@ -692,7 +768,7 @@ size_t ODf::Table::ColumnSize()
     return num_cols;
 }
 
-std::string ODf::Table::GetAt(size_t i, size_t j)
+const std::string ODf::Table::GetAt(size_t i, size_t j)
 {
     assert(i < num_rows && "Row index out of range");
     assert(j < num_cols && "Column index out of range");
@@ -700,12 +776,12 @@ std::string ODf::Table::GetAt(size_t i, size_t j)
     return this->data[i * this->num_cols + j];
 }
 
-ODf::VecString ODf::Table::FeatureNameVector()
+const ODf::VecString ODf::Table::FeatureNameVector()
 {
     return this->list_of_features;
 }
 
-ODf::VecString ODf::Table::GetVectorData()
+const ODf::VecString ODf::Table::GetVectorData()
 {
     return this->data;
 }
@@ -763,6 +839,29 @@ ODf::Table ODf::ColumnConcat(Table t1, Table t2)
     Table concat_table(col_concat_data, t1.RowSize(), t1.ColumnSize() + t2.ColumnSize());
     concat_table.CallAllUpdaters();
     return concat_table;
+}
+
+ODf::Table ODf::QuickSort(ODf::Table &column_table, size_t start, size_t end)
+{
+    assert(column_table.ColumnSize() == 1); // ensure its 1 dimensional
+    assert(column_table.GetType(column_table.FeatureNameVector()[0]) !=
+               DType::STR &&
+           "Values cannot be non-numbers");
+
+    size_t pivot_index = column_table.RowSize() - 1;
+
+    for (size_t i = 0; i < column_table.RowSize() - 1; i++)
+    {
+        if (i == pivot_index)
+        {
+            break;
+        }
+        else if (column_table.GetAt(i, 0) > column_table.GetAt(pivot_index, 0) && i < pivot_index)
+        {
+            column_table.ShiftTo(0, i, pivot_index);
+            pivot_index--;
+        }
+    }
 }
 
 #include "ODf.hpp"

@@ -9,16 +9,25 @@
 #include <algorithm>
 namespace ODf
 {
+    enum class DType
+    {
+        INT,
+        FLOAT,
+        STR
+    };
+
     typedef std::vector<std::string> VecString;
     typedef std::vector<std::size_t> Vec_UInt;
     typedef std::vector<double> VecDouble;
+    typedef std::vector<DType> Vec_DType;
+
     typedef struct Table
     {
-    public:
+    private:
         size_t num_rows;
         size_t num_cols;
         VecString data;
-        VecString feature_type_info;
+        Vec_DType feature_type_info;
         VecString list_of_features;
 
         Vec_UInt GetMaxLength() const;
@@ -29,10 +38,13 @@ namespace ODf
         void AssignTypeInfo();
         void UpdateFeatureVector();
 
+        size_t MapFeatureNameToIndex(std::string feature_name);
+
     public:
         Table(std::string file_path);
         Table(VecString data, size_t num_rows, size_t num_cols);
         Table(std::vector<VecString> data);
+
         Table Cut(size_t r1, size_t r2, size_t c1, size_t c2);
         Table RowCut(size_t r1, size_t r2);
         Table ColumnCut(size_t c1, size_t c2);
@@ -42,14 +54,19 @@ namespace ODf
         Table IsNAN(Vec_UInt columns);
         Table IsNAN(VecString columns);
         Table Statistics(bool = true);
-        Table QuickSort();
+
+        DType GetType(std::string feature_name);
+        DType GetType(size_t index_loc);
+
+        size_t RowSize();
+        size_t ColumnSize();
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
-        double Mean();
-        double StandardDev();
-        double Max();
-        double Min();
+        const double Mean();
+        const double StandardDev();
+        const double Max();
+        const double Min();
 
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);
@@ -58,12 +75,14 @@ namespace ODf
         void UniqueCounts(std::string feature_name);
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
-        void Info();
-        size_t RowSize();
-        size_t ColumnSize();
-        std::string GetAt(size_t i, size_t j);
-        VecString FeatureNameVector();
-        VecString GetVectorData();
+        void ShiftTo(std::string feature_name, size_t row_index_1, size_t row_index_2);
+        void ShiftTo(size_t column_index, size_t row_index_1, size_t row_index_2);
+        const void Info();
+
+        const std::string GetAt(size_t i, size_t j);
+
+        const VecString FeatureNameVector();
+        const VecString GetVectorData();
         // Eigen::MatrixXf ToMatrix(const Table &df);
         // friend std::ostream &operator<<(std::ostream &os, const Table &tables);
         friend std::ostream &operator<<(std::ostream &os, const Table &tables);
@@ -79,6 +98,7 @@ namespace ODf
     Table ScalarMult(Table t, long val);
     Table ElemDiv(Table t1, Table t2);
     Table ScalarDiv(Table t, float val);
+    Table QuickSort(Table &column_table, size_t start, size_t end);
 }
 
 std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);
