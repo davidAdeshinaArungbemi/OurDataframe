@@ -809,7 +809,7 @@ void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
                DType::STR &&
            "Values cannot be non-numbers");
 
-    size_t pivot_index = num_rows - 1;
+    size_t pivot_index = end;
     bool shift_occurred = false;
 
     auto shift = [&](size_t greater_val_index) // lambda to shift
@@ -821,9 +821,9 @@ void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
             shift_occurred = true;
             auto greater_value = GetAt(greater_val_index, column_index);
 
-            for (size_t i = greater_val_index; i < num_rows; i++)
+            for (size_t i = greater_val_index; i < end + 1; i++)
             {
-                if (i == num_rows - 1)
+                if (i == end)
                 {
                     ReplaceAt(i, column_index, greater_value);
                     continue;
@@ -835,9 +835,15 @@ void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
         }
     };
 
-    for (size_t i = start; i < end + 1; i++)
-        shift(i);
+    for (size_t i = start; i < end; i++)
+    {
+        if (i == pivot_index)
+        {
+            break;
+        }
 
+        shift(i);
+    }
     if (shift_occurred == false)
     {
         std::cout << "shift did not occur" << std::endl;
@@ -852,7 +858,7 @@ void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
     //     return;
 
     QuickSort(column_index, 0, pivot_index - 1);
-    QuickSort(column_index, pivot_index + 1, num_rows - 1);
+    QuickSort(column_index, pivot_index + 1, end);
 }
 
 #include "ODf.hpp"
