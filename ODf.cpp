@@ -478,55 +478,7 @@ void ODf::Table::Shuffle(size_t random_state)
 
 void ODf::Table::ReplaceAt(size_t i, size_t j, std::string string_val)
 {
-    this->data[(i + 1) * this->num_rows + j] = string_val;
-}
-
-void ODf::Table::ShiftTo(size_t column_index, size_t row_index_1, size_t row_index_2)
-{
-    VecString shifted_data;
-    shifted_data.push_back(data[column_index]); // adds the feature name
-
-    auto val_at_row_index_1 = GetAt(row_index_1, column_index);
-
-    for (size_t i = 0; i < num_rows; i++)
-    {
-        if (i == row_index_1)
-        {
-            continue;
-        }
-        shifted_data.push_back(data[(i + 1) * this->num_rows + column_index]);
-        if (i == row_index_2)
-        {
-            shifted_data.push_back(data[(row_index_1 + 1) * this->num_rows + column_index]);
-        }
-    }
-
-    this->data = shifted_data;
-}
-
-void ODf::Table::ShiftTo(std::string feature_name,
-                         size_t row_index_1, size_t row_index_2)
-{
-    VecString shifted_data;
-    shifted_data.push_back(feature_name);
-    size_t column_index = MapFeatureNameToIndex(feature_name);
-
-    auto val_at_row_index_1 = GetAt(row_index_1, column_index);
-
-    for (size_t i = 0; i < num_rows; i++)
-    {
-        if (i == row_index_1)
-        {
-            continue;
-        }
-        shifted_data.push_back(data[(i + 1) * this->num_rows + column_index]);
-        if (i == row_index_2)
-        {
-            shifted_data.push_back(data[(row_index_1 + 1) * this->num_rows + column_index]);
-        }
-    }
-
-    this->data = shifted_data;
+    this->data[(i + 1) * this->num_cols + j] = string_val;
 }
 
 const void ODf::Table::Info()
@@ -841,36 +793,81 @@ ODf::Table ODf::ColumnConcat(Table t1, Table t2)
     return concat_table;
 }
 
-ODf::Table ODf::QuickSort(ODf::Table &column_table, size_t start, size_t end)
+void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
 {
-    assert(column_table.ColumnSize() == 1); // ensure its 1 dimensional
-    assert(column_table.GetType(column_table.FeatureNameVector()[0]) !=
+    if (end == std::numeric_limits<size_t>::max())
+    {
+        end = num_rows - 1;
+    }
+    // std::cout << "Column index:" << column_index << std::endl;
+    // std::cout << "Num columns: " << num_cols << std::endl;
+
+    assert(column_index >= 0 && column_index < num_cols); // ensure its 1 dimensional
+    assert(end < num_rows);
+    assert(start >= 0 && start < end);
+    assert(feature_type_info[column_index] !=
                DType::STR &&
            "Values cannot be non-numbers");
 
-    size_t pivot_index = column_table.RowSize() - 1;
+    size_t pivot_index = num_rows - 1;
+    bool shift_occurred = false;
 
-    for (size_t i = 0; i < column_table.RowSize() - 1; i++)
+    auto shift = [&](size_t greater_val_index) // lambda to shift
     {
-        if (i == pivot_index)
+        if (greater_val_index < pivot_index &&
+            std::stof(GetAt(greater_val_index, column_index)) >=
+                std::stof(GetAt(pivot_index, column_index)))
         {
-            break;
+            shift_occurred = true;
+            auto greater_value = GetAt(greater_val_index, column_index);
+
+            for (size_t i = greater_val_index; i < num_rows; i++)
+            {
+                if (i == num_rows - 1)
+                {
+                    ReplaceAt(i, column_index, greater_value);
+                    continue;
+                }
+
+                ReplaceAt(i, column_index, GetAt(i + 1, column_index));
+            }
+            pivot_index--; // update pivot position
         }
-        else if (column_table.GetAt(i, 0) > column_table.GetAt(pivot_index, 0) && i < pivot_index)
-        {
-            column_table.ShiftTo(0, i, pivot_index);
-            pivot_index--;
-        }
+    };
+
+    for (size_t i = start; i < end + 1; i++)
+        shift(i);
+
+    if (shift_occurred == false)
+    {
+        std::cout << "shift did not occur" << std::endl;
+        return;
     }
+
+    std::cout << *this << std::endl;
+    // printf("Start: %zu, End: %zu\n", start, end);
+    // printf("Pivot_index: %zu\n", pivot_index);
+
+    // if (start == pivot_index)
+    //     return;
+
+    QuickSort(column_index, 0, pivot_index - 1);
+    QuickSort(column_index, pivot_index + 1, num_rows - 1);
 }
 
 #include "ODf.hpp"
 int main()
 {
-    ODf::Table *a = new ODf::Table("DataSource/fakeData.csv");
-    auto b1 = a->Cut(0, 2, 0, 2);
+    ODf::Table *a = new ODf::Table("DataSource/tvmarketing.csv");
+    auto b1 = a->Cut(5, 11, 0, 2);
+    // b1.ReplaceAt(0, 0, "100");
+    // b1.ReplaceAt(3, 0, "53");
+    std::cout << b1;
+    b1.QuickSort(0);
     std::cout << b1;
 
-    b1.Statistics();
+    // std::cout << b1.GetAt(1, 1) << std::endl;
+
+    // b1.Statistics();
     // c1.Statistics();
 }

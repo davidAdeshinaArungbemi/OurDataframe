@@ -38,8 +38,6 @@ namespace ODf
         void AssignTypeInfo();
         void UpdateFeatureVector();
 
-        size_t MapFeatureNameToIndex(std::string feature_name);
-
     public:
         Table(std::string file_path);
         Table(VecString data, size_t num_rows, size_t num_cols);
@@ -60,6 +58,7 @@ namespace ODf
 
         size_t RowSize();
         size_t ColumnSize();
+        size_t MapFeatureNameToIndex(std::string feature_name);
         // Table Is_Non_NAN(Vec_UInt columns);
         // Table Is_Non_NAN(VecString columns);
         // Table GroupBy(size_t column, std::string value);
@@ -75,8 +74,8 @@ namespace ODf
         void UniqueCounts(std::string feature_name);
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
-        void ShiftTo(std::string feature_name, size_t row_index_1, size_t row_index_2);
-        void ShiftTo(size_t column_index, size_t row_index_1, size_t row_index_2);
+        void QuickSort(size_t column_index, size_t start = 0,
+                       size_t end = std::numeric_limits<size_t>::max());
         const void Info();
 
         const std::string GetAt(size_t i, size_t j);
@@ -98,7 +97,6 @@ namespace ODf
     Table ScalarMult(Table t, long val);
     Table ElemDiv(Table t1, Table t2);
     Table ScalarDiv(Table t, float val);
-    Table QuickSort(Table &column_table, size_t start, size_t end);
 }
 
 std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);
