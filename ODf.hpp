@@ -74,8 +74,8 @@ namespace ODf
         void UniqueCounts(std::string feature_name);
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
-        void QuickSort(size_t column_index, size_t start = 0,
-                       size_t end = std::numeric_limits<size_t>::max());
+        void QuickSort(size_t column_index, size_t start_index = 0,
+                       size_t end_index = std::numeric_limits<size_t>::max());
         const void Info();
 
         const std::string GetAt(size_t i, size_t j);

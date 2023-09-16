@@ -793,84 +793,43 @@ ODf::Table ODf::ColumnConcat(Table t1, Table t2)
     return concat_table;
 }
 
-void ODf::Table::QuickSort(size_t column_index, size_t start, size_t end)
+void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_index)
 {
-    if (end == std::numeric_limits<size_t>::max())
-    {
-        end = num_rows - 1;
-    }
-    // std::cout << "Column index:" << column_index << std::endl;
-    // std::cout << "Num columns: " << num_cols << std::endl;
+    if (end_index == std::numeric_limits<size_t>::max())
+        end_index = num_rows - 1;
 
     assert(column_index >= 0 && column_index < num_cols); // ensure its 1 dimensional
-    assert(end < num_rows);
-    assert(start >= 0 && start < end);
+    assert(end_index < num_rows);
+    assert(start_index >= 0 && start_index < end_index);
     assert(feature_type_info[column_index] !=
                DType::STR &&
            "Values cannot be non-numbers");
 
-    size_t pivot_index = end;
-    bool shift_occurred = false;
+    size_t pivot_index = end_index;
 
-    auto shift = [&](size_t greater_val_index) // lambda to shift
+    auto partition = [&]() // swap lambda
     {
-        if (greater_val_index < pivot_index &&
-            std::stof(GetAt(greater_val_index, column_index)) >=
-                std::stof(GetAt(pivot_index, column_index)))
-        {
-            shift_occurred = true;
-            auto greater_value = GetAt(greater_val_index, column_index);
 
-            for (size_t i = greater_val_index; i < end + 1; i++)
-            {
-                if (i == end)
-                {
-                    ReplaceAt(i, column_index, greater_value);
-                    continue;
-                }
-
-                ReplaceAt(i, column_index, GetAt(i + 1, column_index));
-            }
-            pivot_index--; // update pivot position
-        }
     };
 
-    for (size_t i = start; i < end; i++)
-    {
-        if (i == pivot_index)
-        {
-            break;
-        }
+    partition();
 
-        shift(i);
-    }
-    if (shift_occurred == false)
-    {
-        std::cout << "shift did not occur" << std::endl;
-        return;
-    }
+    // std::cout << *this << std::endl;
 
-    std::cout << *this << std::endl;
-    // printf("Start: %zu, End: %zu\n", start, end);
-    // printf("Pivot_index: %zu\n", pivot_index);
-
-    // if (start == pivot_index)
-    //     return;
-
-    QuickSort(column_index, 0, pivot_index - 1);
-    QuickSort(column_index, pivot_index + 1, end);
+    // QuickSort(column_index, start_index, pivot_index - 1);
+    // QuickSort(column_index, pivot_index + 1, end_index);
 }
 
 #include "ODf.hpp"
 int main()
 {
     ODf::Table *a = new ODf::Table("DataSource/tvmarketing.csv");
-    auto b1 = a->Cut(5, 11, 0, 2);
+    auto b1 = a->Cut(0, 5, 0, 2);
     // b1.ReplaceAt(0, 0, "100");
     // b1.ReplaceAt(3, 0, "53");
-    std::cout << b1;
+    // std::cout << b1;
     b1.QuickSort(0);
-    std::cout << b1;
+    // std::cout << b1;
 
     // std::cout << b1.GetAt(1, 1) << std::endl;
 
