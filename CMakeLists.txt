@@ -6,4 +6,4 @@ set(CMAKE_CXX_STANDARD 17)
 # include(CTest)
 # enable_testing()
 
-add_library(our-dataframe our-dataframe.cpp)
+add_library(ODf ODf.cpp)
