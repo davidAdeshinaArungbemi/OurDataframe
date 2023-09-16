@@ -1,2 +1,2 @@
-printf("Start: %zu, End: %zu\n", start, end);
-    printf("Pivot_index: %zu\n", pivot_index);
+ - 1);
+    // QuickSort(column_index, pivot_index + 1, end_index);

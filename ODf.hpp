@@ -16,6 +16,12 @@ namespace ODf
         STR
     };
 
+    enum class OrderDirection
+    {
+        ASC,
+        DSC
+    };
+
     typedef std::vector<std::string> VecString;
     typedef std::vector<std::size_t> Vec_UInt;
     typedef std::vector<double> VecDouble;
@@ -51,7 +57,7 @@ namespace ODf
         Table SelectRows(Vec_UInt row_index_select_vec);
         Table IsNAN(Vec_UInt columns);
         Table IsNAN(VecString columns);
-        Table Statistics(bool = true);
+        Table Statistics(bool = false);
 
         DType GetType(std::string feature_name);
         DType GetType(size_t index_loc);
@@ -75,7 +81,9 @@ namespace ODf
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
         void QuickSort(size_t column_index, size_t start_index = 0,
-                       size_t end_index = std::numeric_limits<size_t>::max());
+                       size_t end_index = std::numeric_limits<size_t>::max(),
+                       OrderDirection direction = OrderDirection::ASC);
+
         const void Info();
 
         const std::string GetAt(size_t i, size_t j);

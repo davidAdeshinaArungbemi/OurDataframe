@@ -603,6 +603,7 @@ const double ODf::Table::Max()
 
     return max;
 }
+
 const double ODf::Table::Min()
 {
     assert(num_cols == 1); // ensure its 1 dimensional
@@ -633,6 +634,7 @@ ODf::Table ODf::Table::Statistics(bool show_result)
                                  "max"};
 
     size_t col_size = this->num_cols + 1;
+    size_t row_size = stat_types.size();
 
     for (size_t i = 0; i < stat_types.size(); i++)
     {
@@ -679,35 +681,118 @@ ODf::Table ODf::Table::Statistics(bool show_result)
             case 3:
             { // min
                 stat_vec.push_back(std::to_string(SelectColumns({j}).Min()));
-                std::cout << "Min: " << SelectColumns({j}).Min() << std::endl;
                 break;
             }
 
             case 4:
             { // first quartile
+                auto column_table = SelectColumns({j});
+                column_table.QuickSort(0);
+                auto find_first_quartile = [&]()
+                {
+                    double first_quartile_term = (static_cast<double>(column_table.num_rows + 1) / 4) - 1; // -1 for index
 
+                    if (first_quartile_term == std::floor(first_quartile_term))
+                    {
+                        auto first_quartile = column_table.GetAt(static_cast<long>(first_quartile_term), 0);
+                        stat_vec.push_back(first_quartile);
+                    }
+                    else
+                    {
+                        long below_term = static_cast<long>(first_quartile_term);
+                        long above_term = static_cast<long>(first_quartile_term) + 1;
+
+                        double difference = first_quartile_term - static_cast<long>(first_quartile_term);
+
+                        auto first_quartile = std::stod(column_table.GetAt(below_term, 0)) +
+                                              difference *
+                                                  (std::stod(column_table.GetAt(above_term, 0)) -
+                                                   std::stod(column_table.GetAt(below_term, 0)));
+
+                        stat_vec.push_back(std::to_string(first_quartile));
+                    }
+                };
+                find_first_quartile();
                 break;
             }
             case 5:
             { // second quartile
+                auto column_table = SelectColumns({j});
+                column_table.QuickSort(0);
+                auto find_second_quartile = [&]()
+                {
+                    double second_quartile_term = (static_cast<double>(column_table.num_rows + 1) / 2) - 1; // -1 for index
 
+                    if (second_quartile_term == std::floor(second_quartile_term))
+                    {
+                        auto second_quartile = column_table.GetAt(static_cast<long>(second_quartile_term), 0);
+                        stat_vec.push_back(second_quartile);
+                    }
+                    else
+                    {
+                        long below_term = static_cast<long>(second_quartile_term);
+                        long above_term = static_cast<long>(second_quartile_term) + 1;
+
+                        double difference = second_quartile_term - static_cast<long>(second_quartile_term);
+
+                        auto second_quartile = std::stod(column_table.GetAt(below_term, 0)) +
+                                               difference *
+                                                   (std::stod(column_table.GetAt(above_term, 0)) -
+                                                    std::stod(column_table.GetAt(below_term, 0)));
+
+                        stat_vec.push_back(std::to_string(second_quartile));
+                    }
+                };
+                find_second_quartile();
                 break;
             }
             case 6:
             { // third quartile
+                auto column_table = SelectColumns({j});
+                column_table.QuickSort(0);
+                auto find_third_quartile = [&]()
+                {
+                    double third_quartile_term = ((static_cast<double>(column_table.num_rows + 1) * 3) / 4) - 1; // -1 for index
 
+                    if (third_quartile_term == std::floor(third_quartile_term))
+                    {
+                        auto third_quartile = column_table.GetAt(static_cast<long>(third_quartile_term), 0);
+                        stat_vec.push_back(third_quartile);
+                    }
+                    else
+                    {
+                        long below_term = static_cast<long>(third_quartile_term);
+                        long above_term = static_cast<long>(third_quartile_term) + 1;
+
+                        double difference = third_quartile_term - static_cast<long>(third_quartile_term);
+
+                        auto third_quartile = std::stod(column_table.GetAt(below_term, 0)) +
+                                              difference *
+                                                  (std::stod(column_table.GetAt(above_term, 0)) -
+                                                   std::stod(column_table.GetAt(below_term, 0)));
+
+                        stat_vec.push_back(std::to_string(third_quartile));
+                    }
+                };
+                find_third_quartile();
                 break;
             }
             case 7:
             { // max
                 stat_vec.push_back(std::to_string(SelectColumns({j}).Max()));
-                std::cout << "Max: " << SelectColumns({j}).Max() << std::endl;
                 break;
             }
             }
         }
     }
-    // return Table("jjj");
+
+    auto statistics_table = Table(stat_vec, row_size, col_size);
+    if (show_result == true)
+    {
+        std::cout << statistics_table;
+    }
+
+    return statistics_table;
 }
 
 size_t ODf::Table::RowSize()
@@ -793,31 +878,77 @@ ODf::Table ODf::ColumnConcat(Table t1, Table t2)
     return concat_table;
 }
 
-void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_index)
+void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_index,
+                           OrderDirection direction)
 {
     if (end_index == std::numeric_limits<size_t>::max())
         end_index = num_rows - 1;
 
-    assert(column_index >= 0 && column_index < num_cols); // ensure its 1 dimensional
+    assert(column_index >= 0 && column_index < num_cols);
     assert(end_index < num_rows);
-    assert(start_index >= 0 && start_index < end_index);
     assert(feature_type_info[column_index] !=
                DType::STR &&
            "Values cannot be non-numbers");
 
+    if (!(start_index >= 0 && start_index < end_index)) // base case
+        return;
+
     size_t pivot_index = end_index;
 
-    auto partition = [&]() // swap lambda
+    auto partition = [&]() //
     {
+        size_t i = 0;
+        while (i < pivot_index)
+        {
+            if (direction == OrderDirection::ASC)
+            {
+                // std::cout << "Hi" << std::endl;
+                if (stof(GetAt(i, column_index)) > stof(GetAt(pivot_index, column_index)) &&
+                    i < pivot_index)
+                {
+                    auto val = GetAt(i, column_index);
 
+                    for (size_t a = i; a < pivot_index; a++)
+                    {
+                        ReplaceAt(a, column_index, GetAt(a + 1, column_index));
+                    }
+
+                    ReplaceAt(pivot_index, column_index, val);
+                    pivot_index--;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            else
+            {
+                if (stof(GetAt(i, column_index)) < stof(GetAt(pivot_index, column_index)) &&
+                    i < pivot_index)
+                {
+                    auto val = GetAt(i, column_index);
+
+                    for (size_t a = i; a < pivot_index; a++)
+                    {
+                        ReplaceAt(a, column_index, GetAt(a + 1, column_index));
+                    }
+
+                    ReplaceAt(pivot_index, column_index, val);
+                    pivot_index--;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+        }
     };
 
-    partition();
-
     // std::cout << *this << std::endl;
-
-    // QuickSort(column_index, start_index, pivot_index - 1);
-    // QuickSort(column_index, pivot_index + 1, end_index);
+    partition();
+    QuickSort(column_index, start_index, pivot_index - 1, direction);
+    QuickSort(column_index, pivot_index + 1, end_index, direction);
 }
 
 #include "ODf.hpp"
@@ -825,14 +956,6 @@ int main()
 {
     ODf::Table *a = new ODf::Table("DataSource/tvmarketing.csv");
     auto b1 = a->Cut(0, 5, 0, 2);
-    // b1.ReplaceAt(0, 0, "100");
-    // b1.ReplaceAt(3, 0, "53");
-    // std::cout << b1;
-    b1.QuickSort(0);
-    // std::cout << b1;
-
-    // std::cout << b1.GetAt(1, 1) << std::endl;
-
-    // b1.Statistics();
-    // c1.Statistics();
+    std::cout << b1;
+    b1.Statistics(true);
 }
