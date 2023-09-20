@@ -81,8 +81,28 @@ void ODf::Table::ExtractElements(std::string line)
 
             size = (end_loc - start_loc);
             substring = line.substr(start_loc, size);
+
+            auto check_characters = [&substring]()
+            {
+                for (char c : substring)
+                {
+                    if (std::isprint(c)) // if the character is printable
+                    {
+                        break;
+                    }
+                    // at this point characters in substring are invisible or whitespace
+                    substring.clear(); // we clear the string of all these characters
+                }
+            };
+
+            check_characters();
+
             start_loc = end_loc + 1;
 
+            if (substring.empty())
+            {
+                substring = "NAN";
+            }
             data.push_back(substring);
         }
     }
@@ -153,13 +173,17 @@ void ODf::Table::CallAllUpdaters()
     UpdateFeatureVector();
 }
 
-size_t ODf::Table::MapFeatureNameToIndex(std::string feature_name)
+ODf::Vec_UInt ODf::Table::MapFeatureNameToIndex(ODf::VecString feature_names)
 {
-    auto it = std::find(list_of_features.begin(), list_of_features.end(), feature_name);
+    Vec_UInt feature_index_vec;
+    for (auto f : feature_names)
+    {
+        auto it = std::find(list_of_features.begin(), list_of_features.end(), f);
+        assert(it != list_of_features.end() && "Feature name does not exist");
+        feature_index_vec.push_back(std::distance(list_of_features.begin(), it));
+    }
 
-    assert(it != list_of_features.end() && "Feature name does not exist");
-
-    return std::distance(list_of_features.begin(), it);
+    return feature_index_vec;
 }
 
 ODf::DType ODf::Table::GetType(std::string feature_name)
@@ -168,10 +192,10 @@ ODf::DType ODf::Table::GetType(std::string feature_name)
 
     // assert(it != list_of_features.end() && "Feature name does not exist");
 
-    size_t feature_index = MapFeatureNameToIndex(feature_name);
-
+    size_t feature_index = MapFeatureNameToIndex({feature_name})[0];
     return GetType(feature_index);
 }
+
 ODf::DType ODf::Table::GetType(size_t index_loc)
 {
     assert(index_loc >= 0 && index_loc < feature_type_info.size());
@@ -375,6 +399,51 @@ ODf::Table ODf::Table::SelectRows(Vec_UInt row_index_select_vec)
     Table new_table(new_data, row_index_select_vec.size(), this->num_cols);
     new_table.CallAllUpdaters();
     return new_table;
+}
+
+ODf::Table ODf::Table::NullOrNonNull(Vec_UInt null_columns, Vec_UInt non_null_columns)
+{
+
+    size_t max_columns = null_columns.size() > non_null_columns.size()
+                             ? null_columns.size()
+                             : non_null_columns.size();
+
+    Vec_UInt accepted_rows;
+
+    for (size_t i = 0; i < num_rows; i++)
+    {
+        for (size_t j = 0; j < max_columns; j++)
+        {
+            if (j < null_columns.size())
+            {
+                if (GetAt(i, null_columns[j]) == "NAN")
+                {
+                    accepted_rows.push_back(i);
+                }
+            }
+
+            if (j < non_null_columns.size())
+            {
+                if (GetAt(i, non_null_columns[j]) != "NAN")
+                {
+                    accepted_rows.push_back(i);
+                }
+            }
+        }
+    }
+
+    return SelectRows(accepted_rows);
+}
+
+ODf::Table ODf::Table::NullOrNonNull()
+{
+    return NullOrNonNull(MapFeatureNameToIndex(list_of_features), {});
+}
+
+ODf::Table ODf::Table::NullOrNonNull(VecString null_columns, VecString non_null_columns)
+{
+    return NullOrNonNull(MapFeatureNameToIndex(null_columns),
+                         MapFeatureNameToIndex(non_null_columns));
 }
 
 void ODf::Table::ToCSV(std::string file_name, std::string directory)
@@ -951,11 +1020,14 @@ void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_i
     QuickSort(column_index, pivot_index + 1, end_index, direction);
 }
 
-#include "ODf.hpp"
 int main()
 {
-    ODf::Table *a = new ODf::Table("DataSource/tvmarketing.csv");
-    auto b1 = a->Cut(0, 5, 0, 2);
-    std::cout << b1;
-    b1.Statistics(true);
+    ODf::Table *a = new ODf::Table("DataSource/fakeData.csv");
+    // auto b1 = a->Cut(0, 5, 0, 2);
+    // std::cout << b1;
+    // auto b2 = a->SelectColumns({0, 1, 2, 3, 4, 5, 6, 7});
+    // b2.Statistics(true);
+    std::cout << *a;
+
+    std::cout << a->NullOrNonNull();
 }
