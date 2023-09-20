@@ -90,20 +90,19 @@ namespace ODf
         const VecString FeatureNameVector();
         const VecString GetVectorData();
         // Eigen::MatrixXf ToMatrix(const Table &df);
-        // friend std::ostream &operator<<(std::ostream &os, const Table &tables);
         friend std::ostream &operator<<(std::ostream &os, const Table &tables);
     } Table;
 
     Table RowConcat(Table t1, Table t2);
     Table ColumnConcat(Table t1, Table t2);
 
-    Table Difference(Table t1, Table t2);
-    Table Add(Table t1, Table t2);
-    Table ElemMult(Table t1, Table t2);
-    Table ScalarMult(Table t, float val);
-    Table ScalarMult(Table t, long val);
-    Table ElemDiv(Table t1, Table t2);
-    Table ScalarDiv(Table t, float val);
+    // Table Difference(Table t1, Table t2);
+    // Table Add(Table t1, Table t2);
+    // Table ElemMult(Table t1, Table t2);
+    // Table ScalarMult(Table t, float val);
+    // Table ScalarMult(Table t, long val);
+    // Table ElemDiv(Table t1, Table t2);
+    // Table ScalarDiv(Table t, float val);
 }
 
 std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);

@@ -97,12 +97,13 @@ void ODf::Table::ExtractElements(std::string line)
 
             check_characters();
 
-            start_loc = end_loc + 1;
+            start_loc = end_loc + 1; // update startong_location
 
             if (substring.empty())
             {
                 substring = "NAN";
             }
+
             data.push_back(substring);
         }
     }
@@ -188,10 +189,6 @@ ODf::Vec_UInt ODf::Table::MapFeatureNameToIndex(ODf::VecString feature_names)
 
 ODf::DType ODf::Table::GetType(std::string feature_name)
 {
-    // auto it = std::find(list_of_features.begin(), list_of_features.end(), feature_name);
-
-    // assert(it != list_of_features.end() && "Feature name does not exist");
-
     size_t feature_index = MapFeatureNameToIndex({feature_name})[0];
     return GetType(feature_index);
 }
@@ -1022,12 +1019,12 @@ void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_i
 
 int main()
 {
-    ODf::Table *a = new ODf::Table("DataSource/fakeData.csv");
-    // auto b1 = a->Cut(0, 5, 0, 2);
+    ODf::Table *a = new ODf::Table("DataSource/Titanic_Spaceshing_train.csv");
+    auto b1 = a->Cut(100, 110, 0, 12);
     // std::cout << b1;
     // auto b2 = a->SelectColumns({0, 1, 2, 3, 4, 5, 6, 7});
     // b2.Statistics(true);
-    std::cout << *a;
+    // std::cout << *a;
 
-    std::cout << a->NullOrNonNull();
+    std::cout << b1.NullOrNonNull();
 }
