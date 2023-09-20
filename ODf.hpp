@@ -52,21 +52,20 @@ namespace ODf
         Table Cut(size_t r1, size_t r2, size_t c1, size_t c2);
         Table RowCut(size_t r1, size_t r2);
         Table ColumnCut(size_t c1, size_t c2);
-        Table SelectColumns(Vec_UInt col_index_select_vec);
+        inline Table SelectColumns(Vec_UInt col_index_select_vec);
         Table SelectColumns(VecString features_to_select);
-        Table SelectRows(Vec_UInt row_index_select_vec);
-        Table IsNAN(Vec_UInt columns);
-        Table IsNAN(VecString columns);
+        inline Table SelectRows(Vec_UInt row_index_select_vec);
+        inline Table NullOrNonNull(Vec_UInt null_columns, Vec_UInt non_null_columns);
+        inline Table NullOrNonNull();
+        Table NullOrNonNull(VecString null_columns, VecString non_null_columns);
         Table Statistics(bool = false);
 
         DType GetType(std::string feature_name);
-        DType GetType(size_t index_loc);
+        inline DType GetType(size_t index_loc);
 
         size_t RowSize();
         size_t ColumnSize();
-        size_t MapFeatureNameToIndex(std::string feature_name);
-        // Table Is_Non_NAN(Vec_UInt columns);
-        // Table Is_Non_NAN(VecString columns);
+        inline Vec_UInt MapFeatureNameToIndex(VecString feature_names);
         // Table GroupBy(size_t column, std::string value);
         const double Mean();
         const double StandardDev();
@@ -76,7 +75,7 @@ namespace ODf
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);
         void RenameColumn(size_t col_index, std::string name);
-        void UniqueCounts(size_t col_index);
+        inline void UniqueCounts(size_t col_index);
         void UniqueCounts(std::string feature_name);
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
@@ -91,20 +90,19 @@ namespace ODf
         const VecString FeatureNameVector();
         const VecString GetVectorData();
         // Eigen::MatrixXf ToMatrix(const Table &df);
-        // friend std::ostream &operator<<(std::ostream &os, const Table &tables);
         friend std::ostream &operator<<(std::ostream &os, const Table &tables);
     } Table;
 
     Table RowConcat(Table t1, Table t2);
     Table ColumnConcat(Table t1, Table t2);
 
-    Table Difference(Table t1, Table t2);
-    Table Add(Table t1, Table t2);
-    Table ElemMult(Table t1, Table t2);
-    Table ScalarMult(Table t, float val);
-    Table ScalarMult(Table t, long val);
-    Table ElemDiv(Table t1, Table t2);
-    Table ScalarDiv(Table t, float val);
+    // Table Difference(Table t1, Table t2);
+    // Table Add(Table t1, Table t2);
+    // Table ElemMult(Table t1, Table t2);
+    // Table ScalarMult(Table t, float val);
+    // Table ScalarMult(Table t, long val);
+    // Table ElemDiv(Table t1, Table t2);
+    // Table ScalarDiv(Table t, float val);
 }
 
 std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);
