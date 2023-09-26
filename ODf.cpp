@@ -245,6 +245,15 @@ std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t)
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const ODf::VecDouble &vec_double)
+{
+    for (auto i : vec_double)
+    {
+        os << i << "\n";
+    }
+    return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const ODf::VecString &vec_string)
 {
     for (auto i : vec_string)
@@ -441,6 +450,46 @@ ODf::Table ODf::Table::NullOrNonNull(VecString null_columns, VecString non_null_
 {
     return NullOrNonNull(MapFeatureNameToIndex(null_columns),
                          MapFeatureNameToIndex(non_null_columns));
+}
+
+Eigen::MatrixXd ODf::Table::ToMatrix()
+{
+    for (size_t i = 0; i < num_cols; i++)
+    {
+        assert(GetType(i) != DType::STR && "ensure all values are converted raw numbers");
+    }
+
+    VecDouble raw_vec;
+    for (size_t i = 0; i < num_rows; i++)
+    {
+        for (size_t j = 0; j < num_cols; j++)
+        {
+            try
+            {
+                raw_vec.push_back(std::stod(GetAt(i, j)));
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        }
+    }
+
+    const size_t row_length = num_rows;
+    const size_t col_length = num_cols;
+
+    Eigen::MatrixXd raw_mat;
+    raw_mat.resize(num_rows, num_cols);
+
+    for (size_t i = 0; i < num_rows; i++)
+    {
+        for (size_t j = 0; j < num_cols; j++)
+        {
+            raw_mat(i, j) = raw_vec[i * num_cols + j];
+        }
+    }
+
+    return raw_mat;
 }
 
 void ODf::Table::ToCSV(std::string file_name, std::string directory)
@@ -1015,16 +1064,4 @@ void ODf::Table::QuickSort(size_t column_index, size_t start_index, size_t end_i
     partition();
     QuickSort(column_index, start_index, pivot_index - 1, direction);
     QuickSort(column_index, pivot_index + 1, end_index, direction);
-}
-
-int main()
-{
-    ODf::Table *a = new ODf::Table("DataSource/Titanic_Spaceshing_train.csv");
-    auto b1 = a->Cut(100, 110, 0, 12);
-    // std::cout << b1;
-    // auto b2 = a->SelectColumns({0, 1, 2, 3, 4, 5, 6, 7});
-    // b2.Statistics(true);
-    // std::cout << *a;
-
-    std::cout << b1.NullOrNonNull();
 }

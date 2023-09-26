@@ -7,6 +7,8 @@
 #include <cassert>
 #include <unordered_map>
 #include <algorithm>
+#include "eigen/Dense"
+
 namespace ODf
 {
     enum class DType
@@ -52,19 +54,22 @@ namespace ODf
         Table Cut(size_t r1, size_t r2, size_t c1, size_t c2);
         Table RowCut(size_t r1, size_t r2);
         Table ColumnCut(size_t c1, size_t c2);
-        inline Table SelectColumns(Vec_UInt col_index_select_vec);
+        Table Statistics(bool = false);
         Table SelectColumns(VecString features_to_select);
+        Table NullOrNonNull(VecString null_columns, VecString non_null_columns);
+        inline Table SelectColumns(Vec_UInt col_index_select_vec);
         inline Table SelectRows(Vec_UInt row_index_select_vec);
         inline Table NullOrNonNull(Vec_UInt null_columns, Vec_UInt non_null_columns);
         inline Table NullOrNonNull();
-        Table NullOrNonNull(VecString null_columns, VecString non_null_columns);
-        Table Statistics(bool = false);
+
+        Eigen::MatrixXd ToMatrix();
 
         DType GetType(std::string feature_name);
         inline DType GetType(size_t index_loc);
 
         size_t RowSize();
         size_t ColumnSize();
+
         inline Vec_UInt MapFeatureNameToIndex(VecString feature_names);
         // Table GroupBy(size_t column, std::string value);
         const double Mean();
@@ -84,12 +89,9 @@ namespace ODf
                        OrderDirection direction = OrderDirection::ASC);
 
         const void Info();
-
         const std::string GetAt(size_t i, size_t j);
-
         const VecString FeatureNameVector();
         const VecString GetVectorData();
-        // Eigen::MatrixXf ToMatrix(const Table &df);
         friend std::ostream &operator<<(std::ostream &os, const Table &tables);
     } Table;
 
@@ -107,6 +109,6 @@ namespace ODf
 
 std::ostream &operator<<(std::ostream &os, const ODf::Vec_UInt &vec_size_t);
 std::ostream &operator<<(std::ostream &os, const ODf::VecString &vec_string);
-
+std::ostream &operator<<(std::ostream &os, const ODf::VecDouble &vec_double);
 // Table DropRow(Vec_UInt row_drop_vec);
 // Table DropRow(std::vector<std::string> rows_to_drop);
