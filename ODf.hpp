@@ -57,20 +57,20 @@ namespace ODf
         Table Statistics(bool = false);
         Table SelectColumns(VecString features_to_select);
         Table NullOrNonNull(VecString null_columns, VecString non_null_columns);
-        inline Table SelectColumns(Vec_UInt col_index_select_vec);
-        inline Table SelectRows(Vec_UInt row_index_select_vec);
-        inline Table NullOrNonNull(Vec_UInt null_columns, Vec_UInt non_null_columns);
-        inline Table NullOrNonNull();
+        Table SelectColumns(Vec_UInt col_index_select_vec);
+        Table SelectRows(Vec_UInt row_index_select_vec);
+        Table NullOrNonNull(Vec_UInt null_columns, Vec_UInt non_null_columns);
+        Table NullOrNonNull();
 
         Eigen::MatrixXd ToMatrix();
 
         DType GetType(std::string feature_name);
-        inline DType GetType(size_t index_loc);
+        DType GetType(size_t index_loc);
 
         size_t RowSize();
         size_t ColumnSize();
 
-        inline Vec_UInt MapFeatureNameToIndex(VecString feature_names);
+        Vec_UInt MapFeatureNameToIndex(VecString feature_names);
         // Table GroupBy(size_t column, std::string value);
         const double Mean();
         const double StandardDev();
@@ -80,7 +80,7 @@ namespace ODf
         void CallAllUpdaters(); // calls all updaters
         void ToCSV(std::string file_name, std::string directory);
         void RenameColumn(size_t col_index, std::string name);
-        inline void UniqueCounts(size_t col_index);
+        void UniqueCounts(size_t col_index);
         void UniqueCounts(std::string feature_name);
         void Shuffle(size_t random_state);
         void ReplaceAt(size_t i, size_t j, std::string string_val);
