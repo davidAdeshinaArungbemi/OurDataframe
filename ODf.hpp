@@ -49,7 +49,7 @@ namespace ODf
     public:
         Table(std::string file_path);
         Table(VecString data, size_t num_rows, size_t num_cols);
-        Table(std::vector<VecString> data);
+        Table(std::string value, size_t num_rows,size_t num_cols);
 
         Table Cut(size_t r1, size_t r2, size_t c1, size_t c2);
         Table RowCut(size_t r1, size_t r2);
