@@ -47,6 +47,7 @@ ODf::Table::Table(ODf::VecString data, size_t num_rows, size_t num_cols)
 ODf::Table::Table(std::string value, size_t num_rows, size_t num_cols)
 {
     VecString data(num_rows * num_cols, value);
+    data.insert(data.begin(), "F");
     this->data = data;
     this->num_rows = num_rows;
     this->num_cols = num_cols;
